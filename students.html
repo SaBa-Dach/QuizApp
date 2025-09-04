@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz App</title>
+</head>
+<body>
+    
+    <div class="StudentsDiv">
+    <h1>Quiz App</h1>
+    <div id="quiz-container"></div>
+    <button>Submit</button>
+    <button id="getStatsBtn">View Results</button>
+    <div class="stats" id="stats-container" style="display: none;"></div>
+  </div>
+
+
+  <script>
+        const message = document.getElementById("message");
+        const quizContainer = document.getElementById("quizContainer");
+
+        function checkTestStatus() {
+            const testStarted = localStorage.getItem("testStarted");
+            const deadline = localStorage.getItem("testDeadline");
+
+            if (testStarted === "true" && deadline) {
+                const deadlineTime = new Date(deadline);
+                const now = new Date();
+
+                if (now < deadlineTime) {
+                    message.textContent = "Test is in progress.";
+                    quizContainer.style.display = "block";
+                } else {
+                    message.textContent = "The test is over.";
+                    quizContainer.style.display = "none";
+                }
+            } else {
+                message.textContent = "Test has not started yet.";
+                quizContainer.style.display = "none";
+            }
+        }
+
+        checkTestStatus();
+
+        setInterval(checkTestStatus, 5000);
+    </script>
+
+</body>
+</html>

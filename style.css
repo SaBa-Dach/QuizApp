@@ -1,0 +1,19 @@
+body{
+    background-color: rgba(0, 0, 0, 0.318);
+}
+
+.Signin{
+    padding-top: 10px;
+    padding-bottom: 10px;
+    background-color: rgba(0, 0, 0, 0.444);
+    border-radius: 25px;
+    justify-content: center;
+    text-align: center;
+}
+
+.TeachersDiv{
+    display: block;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+}
