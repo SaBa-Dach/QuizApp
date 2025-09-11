@@ -1,0 +1,26 @@
+
+body {
+    display: flex;
+    justify-content: center;    
+    align-items: center;        
+    height: 100vh;              
+    margin: 0;                
+    background-color: #f0f0f0;  
+}
+
+.Signin {
+    padding: 30px;
+    background-color: rgba(0, 0, 0, 0.444);
+    border-radius: 25px;
+    text-align: center;
+    width: 300px;
+}
+
+
+
+.TeachersDiv{
+    display: block;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+}

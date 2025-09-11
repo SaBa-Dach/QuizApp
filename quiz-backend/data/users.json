@@ -1,0 +1,16 @@
+{
+  "users": [
+    {
+      "id": "a27eedc7-93c8-4f91-a9bd-1ba70215dba2",
+      "firstName": "Demetre",
+      "lastName": "labadze",
+      "role": "teacher"
+    },
+    {
+      "id": "f082407d-00b6-421e-82e1-ee76b1282941",
+      "firstName": "saba",
+      "lastName": "dachiberidze",
+      "role": "student"
+    }
+  ]
+}

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quiz App</title>
+</head>
+<body>
+  <div class="StudentsDiv">
+    <h1>Quiz App</h1>
+    <p id="message"></p>
+
+    <div id="quiz-container"></div>
+
+    <button id="startTestBtn" style="display: none;">Start Test</button>
+    <button id="submitBtn">Submit</button>
+    <button id="getStatsBtn">View Results</button>
+
+    <div class="stats" id="stats-container" style="display: none;"></div>
+  </div>
+
+  <script>
+    const message = document.getElementById("message");
+    const quizContainer = document.getElementById("quiz-container");
+    const submitBtn = document.getElementById("submitBtn");
+    const getStatsBtn = document.getElementById("getStatsBtn");
+    const statsContainer = document.getElementById("stats-container");
+    const startTestBtn = document.getElementById("startTestBtn");
+
+    const token = localStorage.getItem("token");
+
+    async function checkUserRole() {
+      try {
+        const response = await fetch(`/results?token=${token}`);
+        if (response.ok) {
+          startTestBtn.style.display = "inline-block";
+        }
+      } catch (err) {
+      }
+    }
+
+    // Teacher starts the test
+    startTestBtn.addEventListener("click", async () => {
+      try {
+        const response = await fetch("/session/start", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          alert(data.error || "Failed to start the quiz.");
+          return;
+        }
+
+        alert("Quiz started!");
+        loadQuestions();
+      } catch (err) {
+        console.error("Error starting quiz:", err);
+        alert("Error starting quiz.");
+      }
+    });
+
+    // Load quiz questions (only after quiz is started)
+    async function loadQuestions() {
+      try {
+        const response = await fetch('/questions');
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          message.textContent = data.error || "Unable to load quiz.";
+          return;
+        }
+
+        message.textContent = "Answer all the questions below:";
+        displayQuestions(data.questions);
+
+      } catch (err) {
+        console.error("Error loading quiz questions:", err);
+        message.textContent = "Error loading quiz questions.";
+      }
+    }
+
+    function displayQuestions(questions) {
+      quizContainer.innerHTML = "";
+
+      questions.forEach((q, index) => {
+        const questionDiv = document.createElement("div");
+        questionDiv.innerHTML = `
+          <p><strong>${index + 1}. ${q.text}</strong></p>
+          <label><input type="radio" name="q${q.id}" value="a" /> A. ${q.choices?.a || q.options?.a}</label><br>
+          <label><input type="radio" name="q${q.id}" value="b" /> B. ${q.choices?.b || q.options?.b}</label><br>
+          <label><input type="radio" name="q${q.id}" value="c" /> C. ${q.choices?.c || q.options?.c}</label><br>
+          <label><input type="radio" name="q${q.id}" value="d" /> D. ${q.choices?.d || q.options?.d}</label><br><br>
+        `;
+        quizContainer.appendChild(questionDiv);
+      });
+    }
+
+    // Submit answers
+    submitBtn.addEventListener("click", async () => {
+      const answers = {};
+      const questionBlocks = quizContainer.querySelectorAll("div");
+
+      questionBlocks.forEach((block) => {
+        const radios = block.querySelectorAll("input[type='radio']");
+        const questionId = radios[0]?.name.slice(1);
+        for (const radio of radios) {
+          if (radio.checked) {
+            answers[questionId] = radio.value;
+            break;
+          }
+        }
+      });
+
+      try {
+        const response = await fetch("/submit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token, answers }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          alert(data.error || "Failed to submit answers.");
+          return;
+        }
+
+        alert("Answers submitted successfully.");
+      } catch (err) {
+        console.error("Error submitting answers:", err);
+        alert("Submission error.");
+      }
+    });
+
+    // View results
+    getStatsBtn.addEventListener("click", async () => {
+      try {
+        const response = await fetch(`/results?token=${token}`);
+        const data = await response.json();
+
+        if (!response.ok) {
+          alert(data.error || "Failed to get results.");
+          return;
+        }
+
+        statsContainer.style.display = "block";
+        statsContainer.innerHTML = "<h3>Results:</h3>";
+        data.forEach(res => {
+          statsContainer.innerHTML += `<p>${res.name}: ${res.score}/${res.total}</p>`;
+        });
+      } catch (err) {
+        console.error("Error getting results:", err);
+        alert("Unable to get results.");
+      }
+    });
+
+    checkUserRole();
+  </script>
+</body>
+</html>

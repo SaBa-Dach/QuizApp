@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quiz App - Teacher</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    #ViewResults {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="TeachersDiv">
+    <h1>Welcome</h1>
+
+    <label>Enter Test Deadline Time <br>
+      <input type="time" id="TimeDeadline" />
+    </label><br />
+
+    <button id="Start">Start Test</button>
+    <button id="ViewResults">View Results</button>
+
+    <div id="timerDisplay" style="margin-top: 20px; font-size: 1.5em; color: red;"></div>
+  </div>
+
+  <script>
+    const startBtn = document.getElementById("Start");
+    const timeInput = document.getElementById("TimeDeadline");
+    const timerDisplay = document.getElementById("timerDisplay");
+    const viewResultsBtn = document.getElementById("ViewResults");
+
+    let timerInterval;
+
+    const token = localStorage.getItem("token");
+
+    startBtn.addEventListener("click", async () => {
+      const deadlineTime = timeInput.value;
+
+      if (!deadlineTime) {
+        alert("Please enter the test's deadline time.");
+        return;
+      }
+
+      const now = new Date();
+      const [hours, minutes] = deadlineTime.split(":");
+
+      const deadline = new Date();
+      deadline.setHours(parseInt(hours));
+      deadline.setMinutes(parseInt(minutes));
+      deadline.setSeconds(0);
+
+      if (deadline <= now) {
+        alert("Deadline time must be in the future.");
+        return;
+      }
+
+      try {
+        // ✅ Call server to start the test session
+        const response = await fetch("/session/start", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ token })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          alert(data.error || "Failed to start the test on server.");
+          return;
+        }
+
+        console.log("Server session started:", data);
+
+        localStorage.setItem("testStarted", "true");
+        localStorage.setItem("testDeadline", deadline.toISOString());
+
+        // Start countdown
+        viewResultsBtn.style.display = "none";
+        clearInterval(timerInterval);
+
+        timerInterval = setInterval(() => {
+          const currentTime = new Date();
+          const diff = deadline - currentTime;
+
+          if (diff <= 0) {
+            clearInterval(timerInterval);
+            timerDisplay.textContent = "Time's up!";
+            viewResultsBtn.style.display = "inline-block";
+            return;
+          }
+
+          const minutesLeft = Math.floor(diff / 1000 / 60);
+          const secondsLeft = Math.floor((diff / 1000) % 60);
+          timerDisplay.textContent = `Time left: ${minutesLeft}m ${secondsLeft}s`;
+        }, 1000);
+      } catch (err) {
+        console.error("Error starting session:", err);
+        alert("Failed to contact server.");
+      }
+    });
+  </script>
+</body>
+</html>
