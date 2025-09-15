@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Quiz App - Teacher</title>
-  <link rel="stylesheet" href="style.css" />
   <style>
     #ViewResults {
       display: none;
@@ -35,6 +34,10 @@
 
     const token = localStorage.getItem("token");
 
+    if (!token) {
+      alert("No valid token found. Please log in as a teacher.");
+    }
+
     startBtn.addEventListener("click", async () => {
       const deadlineTime = timeInput.value;
 
@@ -57,8 +60,8 @@
       }
 
       try {
-        // ✅ Call server to start the test session
-        const response = await fetch("/session/start", {
+        // Call server to start the test session
+        const response = await fetch("http://localhost:3000/session/start", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
