@@ -6,16 +6,14 @@ const path = require("path");
 
 const app = express();
 const corsOptions = {
-  origin: "http://localhost", // Allow the frontend (Teacher.html) to access the API on localhost
-  methods: "GET, POST",
+  origin: "http://localhost",
   allowedHeaders: "Content-Type",
 };
-app.use(cors(corsOptions)); // Use this instead of just cors()
+app.use(cors(corsOptions));
 app.use(express.json());
 
 const DATA_DIR = path.join(__dirname, "data");
 
-// Function to read data from JSON files
 function readJSON(filename) {
   try {
     return JSON.parse(fs.readFileSync(path.join(DATA_DIR, filename), "utf8"));
@@ -24,33 +22,33 @@ function readJSON(filename) {
   }
 }
 
-// Function to write data to JSON files
 function writeJSON(filename, data) {
   fs.writeFileSync(path.join(DATA_DIR, filename), JSON.stringify(data, null, 2));
 }
 
-// --- Routes ---
-
-// Serve frontend static files if any (optional)
 app.use(express.static(path.join(__dirname, "public")));
 
-// Sign-in route for user login
 app.post("/signin", (req, res) => {
   const { firstName, lastName } = req.body;
-  if (!firstName || !lastName) return res.status(400).json({ error: "First name and last name are required" });
+  if (!firstName || !lastName)
+    return res.status(400).json({ error: "First name and last name are required" });
 
   const teachersData = readJSON("teachers.json");
   const teachers = teachersData.teachers || [];
 
   const isTeacher = teachers.some(
-    (t) => t.firstName.toLowerCase() === firstName.toLowerCase() && t.lastName.toLowerCase() === lastName.toLowerCase()
+    (t) =>
+      t.firstName.toLowerCase() === firstName.toLowerCase() &&
+      t.lastName.toLowerCase() === lastName.toLowerCase()
   );
 
   const usersData = readJSON("users.json");
   if (!usersData.users) usersData.users = [];
 
   let user = usersData.users.find(
-    (u) => u.firstName.toLowerCase() === firstName.toLowerCase() && u.lastName.toLowerCase() === lastName.toLowerCase()
+    (u) =>
+      u.firstName.toLowerCase() === firstName.toLowerCase() &&
+      u.lastName.toLowerCase() === lastName.toLowerCase()
   );
 
   if (!user) {
@@ -62,21 +60,19 @@ app.post("/signin", (req, res) => {
   res.json({ token: user.id, role: user.role });
 });
 
-// Teacher starts the quiz session
 app.post("/session/start", (req, res) => {
   const { token } = req.body;
   if (!token) return res.status(400).json({ error: "Token required" });
 
   const usersData = readJSON("users.json");
   const users = usersData.users || [];
-  const teacher = users.find(u => u.id === token && u.role === "teacher");
+  const teacher = users.find((u) => u.id === token && u.role === "teacher");
 
   if (!teacher) return res.status(403).json({ error: "Only teacher can start quiz" });
 
   const sessionsData = readJSON("sessions.json");
   if (!sessionsData.sessions) sessionsData.sessions = [];
 
-  // Start now and end in 1 hour
   const startTime = Date.now();
   const endTime = startTime + 60 * 60 * 1000;
 
@@ -86,7 +82,6 @@ app.post("/session/start", (req, res) => {
   res.json({ message: "Quiz started", startTime, endTime });
 });
 
-// Get quiz session status for students
 app.get("/session/status", (req, res) => {
   const sessionsData = readJSON("sessions.json");
   if (!sessionsData.sessions || sessionsData.sessions.length === 0) {
@@ -103,10 +98,10 @@ app.get("/session/status", (req, res) => {
   return res.json({ testStarted: false, remainingTimeMs: 0 });
 });
 
-// Serve quiz questions
 app.get("/questions", (req, res) => {
   const sessionsData = readJSON("sessions.json");
-  if (!sessionsData.sessions || sessionsData.sessions.length === 0) return res.status(403).json({ error: "Quiz has not started yet" });
+  if (!sessionsData.sessions || sessionsData.sessions.length === 0)
+    return res.status(403).json({ error: "Quiz has not started yet" });
 
   const latestSession = sessionsData.sessions[sessionsData.sessions.length - 1];
   const now = Date.now();
@@ -115,10 +110,10 @@ app.get("/questions", (req, res) => {
   if (now < latestSession.startTime) return res.status(403).json({ error: "Quiz has not started yet" });
 
   const questionsData = readJSON("questions.json");
-  const questions = questionsData.questions || [];
+  const questions = questionsData["questions"] || [];
 
-  // Remove correctAnswer before sending
-  const questionsToSend = questions.map(q => {
+  // Remove correctAnswer before sending to students
+  const questionsToSend = questions.map((q) => {
     const { correctAnswer, ...rest } = q;
     return rest;
   });
@@ -126,7 +121,158 @@ app.get("/questions", (req, res) => {
   res.json({ remainingTimeMs: latestSession.endTime - now, questions: questionsToSend });
 });
 
-// --- Start server ---
+app.post("/submit", (req, res) => {
+  const { token, answers } = req.body;
+
+  if (!token || !answers) {
+    return res.status(400).json({ error: "Token and answers are required." });
+  }
+
+  const usersData = readJSON("users.json");
+  const user = usersData.users?.find((u) => u.id === token && u.role === "student");
+
+  if (!user) {
+    return res.status(403).json({ error: "Invalid student token." });
+  }
+
+  const submissionsData = readJSON("submissions.json");
+  if (!submissionsData.submissions) submissionsData.submissions = [];
+
+  const alreadySubmitted = submissionsData.submissions.find((sub) => sub.token === token);
+  if (alreadySubmitted) {
+    return res.status(400).json({ error: "You have already submitted your answers." });
+  }
+
+  // Load questions to check for multiple-choice scoring
+  const questionsData = readJSON("questions.json");
+  const questions = questionsData.questions || [];
+
+  // Calculate score only for multiple-choice questions
+  let score = 0;
+  let totalMCQs = 0;
+
+  questions.forEach((q) => {
+    if (q.type === "multiple-choice") {
+      totalMCQs++;
+      if (answers[q.id] && answers[q.id].toLowerCase() === q.correctAnswer.toLowerCase()) {
+        score++;
+      }
+    }
+  });
+
+  // Save submission including score and all answers
+  submissionsData.submissions.push({
+    token,
+    studentName: `${user.firstName} ${user.lastName}`,
+    answers,
+    score,
+    totalMCQs,
+    submittedAt: new Date().toISOString(),
+  });
+
+  writeJSON("submissions.json", submissionsData);
+
+  res.json({ message: "Answers submitted successfully!", score, totalMCQs });
+});
+
+app.get("/results", (req, res) => {
+  const token = req.query.token;
+
+  if (!token) {
+    return res.status(400).json({ error: "Token required" });
+  }
+
+  const usersData = readJSON("users.json");
+  const user = usersData.users?.find((u) => u.id === token && u.role === "student");
+
+  if (!user) {
+    return res.status(403).json({ error: "Invalid student token." });
+  }
+
+  const submissionsData = readJSON("submissions.json");
+  const submission = submissionsData.submissions?.find((sub) => sub.token === token);
+
+  if (!submission) {
+    return res.status(404).json({ error: "No submission found for this student." });
+  }
+
+  const questionsData = readJSON("questions.json");
+  const questions = questionsData.questions || [];
+
+  const detailedResults = questions.map((q) => ({
+    id: q.id,
+    text: q.text,
+    choices: q.choices || null,
+    correctAnswer: q.correctAnswer || null,
+    studentAnswer: submission.answers[q.id] || null,
+    type: q.type || "multiple-choice",
+  }));
+
+  res.json({
+    studentName: submission.studentName,
+    submittedAt: submission.submittedAt,
+    score: submission.score,
+    totalMCQs: submission.totalMCQs,
+    results: detailedResults,
+  });
+});
+
+app.get("/submission/check", (req, res) => {
+  const token = req.query.token;
+  if (!token) return res.status(400).json({ error: "Token required" });
+
+  const submissionsData = readJSON("submissions.json");
+  const submission = submissionsData.submissions?.find((sub) => sub.token === token);
+
+  if (submission) {
+    return res.json({ submitted: true });
+  } else {
+    return res.json({ submitted: false });
+  }
+});
+
+app.get("/teacher/results", (req, res) => {
+  const token = req.query.token;
+
+  if (!token) {
+    return res.status(400).json({ error: "Teacher token required" });
+  }
+
+  const usersData = readJSON("users.json");
+  const teacher = usersData.users?.find((u) => u.id === token && u.role === "teacher");
+  if (!teacher) {
+    return res.status(403).json({ error: "Invalid teacher token" });
+  }
+
+  const submissionsData = readJSON("submissions.json");
+  const submissions = submissionsData.submissions || [];
+
+  const questionsData = readJSON("questions.json");
+  const questions = questionsData.questions || [];
+
+  // Prepare results showing how many MCQs each student got correct
+  const results = submissions.map((sub) => {
+    let correctCount = 0;
+    let totalMCQs = 0;
+    questions.forEach((q) => {
+      if (q.type === "multiple-choice") {
+        totalMCQs++;
+        if (sub.answers[q.id] && sub.answers[q.id].toLowerCase() === q.correctAnswer.toLowerCase()) {
+          correctCount++;
+        }
+      }
+    });
+    return {
+      studentName: sub.studentName,
+      submittedAt: sub.submittedAt,
+      correctCount,
+      totalMCQs,
+    };
+  });
+
+  res.json({ results });
+});
+
 const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

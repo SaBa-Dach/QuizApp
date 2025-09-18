@@ -9,7 +9,8 @@
         "c": "JavaScript",
         "d": "Python"
       },
-      "correctAnswer": "a"
+      "correctAnswer": "a",
+      "type": "multiple-choice"
     },
     {
       "id": "q2",
@@ -20,7 +21,8 @@
         "c": "To execute backend logic",
         "d": "To query databases"
       },
-      "correctAnswer": "a"
+      "correctAnswer": "a",
+      "type": "multiple-choice"
     },
     {
       "id": "q3",
@@ -31,7 +33,8 @@
         "c": "Designing databases",
         "d": "Configuring servers"
       },
-      "correctAnswer": "b"
+      "correctAnswer": "b",
+      "type": "multiple-choice"
     },
     {
       "id": "q4",
@@ -42,18 +45,20 @@
         "c": "PUT",
         "d": "DELETE"
       },
-      "correctAnswer": "b"
+      "correctAnswer": "b",
+      "type": "multiple-choice"
     },
     {
       "id": "q5",
       "text": "Which tag is used to create a hyperlink in HTML?",
       "choices": {
-        "a": "<link>",
-        "b": "<a>",
-        "c": "<href>",
-        "d": "<hyperlink>"
+        "a": "link",
+        "b": "a",
+        "c": "href",
+        "d": "hyperlink"
       },
-      "correctAnswer": "b"
+      "correctAnswer": "b",
+      "type": "multiple-choice"
     },
     {
       "id": "q6",
@@ -64,7 +69,8 @@
         "c": "Application Process Integration",
         "d": "Automated Programming Interaction"
       },
-      "correctAnswer": "a"
+      "correctAnswer": "a",
+      "type": "multiple-choice"
     },
     {
       "id": "q7",
@@ -75,18 +81,20 @@
         "c": "text-color",
         "d": "font-style"
       },
-      "correctAnswer": "b"
+      "correctAnswer": "b",
+      "type": "multiple-choice"
     },
     {
       "id": "q8",
       "text": "Which HTML element is used to insert an image?",
       "choices": {
-        "a": "<picture>",
-        "b": "<src>",
-        "c": "<image>",
-        "d": "<img>"
+        "a": "picture",
+        "b": "src",
+        "c": "image",
+        "d": "img"
       },
-      "correctAnswer": "d"
+      "correctAnswer": "d",
+      "type": "multiple-choice"
     },
     {
       "id": "q9",
@@ -97,7 +105,8 @@
         "c": "404",
         "d": "500"
       },
-      "correctAnswer": "c"
+      "correctAnswer": "c",
+      "type": "multiple-choice"
     },
     {
       "id": "q10",
@@ -108,7 +117,20 @@
         "c": "let",
         "d": "All of the above"
       },
-      "correctAnswer": "d"
+      "correctAnswer": "d",
+      "type": "multiple-choice"
+    },
+    {
+      "id": "q11",
+      "text": "Explain what a REST API is in your own words.",
+      "choices": {},
+      "type": "open-ended"
+    },
+    {
+      "id": "q12",
+      "text": "What are the key differences between CSS and JavaScript?",
+      "choices": {},
+      "type": "open-ended"
     }
   ]
 }
