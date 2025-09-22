@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quiz App - Teacher</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    #ViewResults {
+      display: none;
+    }
+    #resultsList {
+      margin-top: 20px;
+    }
+    #resultsList .result-item {
+      margin-bottom: 15px;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 10px;
+    }
+    #seeOpenQuestionsBtn {
+      margin-top: 10px;
+      display: none;
+    }
+    #openQuestionsResults > div {
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-bottom: 15px;
+    }
+  </style>
+</head>
+<body>
+  <div class="TeachersDiv">
+    <h1>Teacher Dashboard</h1>
+
+    <label>Enter Test Deadline Time <br>
+      <input type="time" id="TimeDeadline" />
+    </label><br />
+
+    <button id="Start">Start Test</button>
+    <button id="ViewResults" style="display:none;">View Students Results</button>
+    <button id="seeOpenQuestionsBtn">See Open Questions</button>
+
+    <div id="OpenQuestionsContainer"></div>
+    <div id="timerDisplay" style="margin-top: 20px; font-size: 1.5em; color: red;"></div>
+
+    <div id="resultsList"></div>
+    <div id="openQuestionsResults" style="margin-top: 20px;"></div>
+  </div>
+
+  <script>
+    const startBtn = document.getElementById("Start");
+    const timeInput = document.getElementById("TimeDeadline");
+    const timerDisplay = document.getElementById("timerDisplay");
+    const viewResultsBtn = document.getElementById("ViewResults");
+    const resultsListDiv = document.getElementById("resultsList");
+    const seeOpenQuestionsBtn = document.getElementById("seeOpenQuestionsBtn");
+    const openQuestionsResultsDiv = document.getElementById("openQuestionsResults");
+
+    let timerInterval;
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("No valid token found. Please log in as a teacher.");
+    }
+
+    startBtn.addEventListener("click", async () => {
+      const deadlineTime = timeInput.value;
+
+      if (!deadlineTime) {
+        alert("Please enter the test's deadline time.");
+        return;
+      }
+
+      const now = new Date();
+      const [hours, minutes] = deadlineTime.split(":");
+
+      const deadline = new Date();
+      deadline.setHours(parseInt(hours));
+      deadline.setMinutes(parseInt(minutes));
+      deadline.setSeconds(0);
+
+      if (deadline <= now) {
+        alert("Deadline time must be in the future.");
+        return;
+      }
+
+      try {
+        const response = await fetch("http://localhost:3000/session/start", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ token })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          alert(data.error || "Failed to start the test on server.");
+          return;
+        }
+
+        console.log("Server session started:", data);
+
+        localStorage.setItem("testStarted", "true");
+        localStorage.setItem("testDeadline", deadline.toISOString());
+
+        // Hide results until test is over
+        viewResultsBtn.style.display = "none";
+        resultsListDiv.innerHTML = "";
+        seeOpenQuestionsBtn.style.display = "none";
+        openQuestionsResultsDiv.innerHTML = "";
+
+        clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+          const currentTime = new Date();
+          const diff = deadline - currentTime;
+
+          if (diff <= 0) {
+            clearInterval(timerInterval);
+            timerDisplay.textContent = "Time's up!";
+            viewResultsBtn.style.display = "inline-block";
+            seeOpenQuestionsBtn.style.display = "inline-block"; // Show button when time is up
+          } else {
+            const minutesLeft = Math.floor(diff / 1000 / 60);
+            const secondsLeft = Math.floor((diff / 1000) % 60);
+            timerDisplay.textContent = `Time left: ${minutesLeft}m ${secondsLeft}s`;
+          }
+        }, 1000);
+
+      } catch (err) {
+        console.error("Error starting session:", err);
+        alert("Failed to contact server.");
+      }
+    });
+
+    viewResultsBtn.addEventListener("click", async () => {
+      // Fetch the teacher results
+      try {
+        const response = await fetch(`http://localhost:3000/teacher/results?token=${token}`);
+        const data = await response.json();
+
+        if (!response.ok) {
+          alert(data.error || "Failed to fetch students results.");
+          return;
+        }
+
+        resultsListDiv.innerHTML = "<h2>Students' Results</h2>";
+
+        data.results.forEach(r => {
+          const div = document.createElement("div");
+          div.className = "result-item";
+          div.innerHTML = `
+            <p><strong>${r.studentName}</strong></p>
+            <p>Score: ${r.correctCount} / ${r.totalQuestions}</p>
+          `;
+          resultsListDiv.appendChild(div);
+        });
+
+      } catch (err) {
+        console.error("Error fetching teacher results:", err);
+        alert("Failed to fetch students results.");
+      }
+    });
+
+    seeOpenQuestionsBtn.addEventListener("click", async () => {
+      openQuestionsResultsDiv.innerHTML = "Loading open question answers...";
+      try {
+        // Fetch open questions answers for all students from your backend
+        const response = await fetch(`http://localhost:3000/teacher/open-questions?token=${token}`);
+        const data = await response.json();
+
+        if (!response.ok) {
+          openQuestionsResultsDiv.textContent = data.error || "Failed to fetch open question answers.";
+          return;
+        }
+
+        if (!data.results || data.results.length === 0) {
+          openQuestionsResultsDiv.textContent = "No open question answers available.";
+          return;
+        }
+
+        // Build HTML to display student names + open answers
+        let html = '<h2>Open Questions Answers</h2>';
+
+        data.results.forEach(student => {
+          html += `<div>`;
+          html += `<h3>Student: ${student.studentName}</h3>`;
+
+          if (student.openAnswers && student.openAnswers.length > 0) {
+            student.openAnswers.forEach((answer, i) => {
+              html += `<p><strong>Question ${i+1}:</strong> ${answer.question}</p>`;
+              html += `<p><em>Answer:</em> ${answer.answer}</p>`;
+              html += `<hr>`;
+            });
+          } else {
+            html += `<p>No open question answers submitted.</p>`;
+          }
+          html += `</div>`;
+        });
+
+        openQuestionsResultsDiv.innerHTML = html;
+
+      } catch (err) {
+        console.error("Error fetching open question answers:", err);
+        openQuestionsResultsDiv.textContent = "Error loading open question answers.";
+      }
+    });
+  </script>
+</body>
+</html>

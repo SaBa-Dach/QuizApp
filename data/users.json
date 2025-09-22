@@ -1,0 +1,10 @@
+{
+  "users": [
+    {
+      "id": "ba15a5c8-a0f8-4af4-9ebf-d792faf34f03",
+      "firstName": "demetre",
+      "lastName": "labadze",
+      "role": "teacher"
+    }
+  ]
+}

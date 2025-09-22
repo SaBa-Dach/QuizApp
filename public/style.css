@@ -1,0 +1,283 @@
+/* style.css - unified styles for Signin, Students, Teacher pages */
+
+/* --- Page basics --- */
+:root{
+  --bg: #0f1724;
+  --card: #0b1220;
+  --muted: #9aa4b2;
+  --accent: #6ee7b7;
+  --accent-2: #7dd3fc;
+  --danger: #fb7185;
+  --glass: rgba(255,255,255,0.04);
+  --radius: 12px;
+  --text: #e6eef6;
+  --shadow: 0 6px 18px rgba(2,6,23,0.6);
+  --max-width: 920px;
+  --gap: 18px;
+}
+
+* { box-sizing: border-box; }
+html,body {
+  height: 100%;
+  margin: 0;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  background: linear-gradient(180deg, #071024 0%, var(--bg) 100%);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.45;
+  padding: 28px 16px;
+}
+
+/* Center wrapper reused across pages */
+.page-wrap {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  display: block;
+  padding: 28px;
+}
+
+/* Headings */
+h1 {
+  margin: 0 0 14px 0;
+  font-size: 28px;
+  letter-spacing: -0.3px;
+  color: var(--text);
+}
+
+/* --- Signin (index.html) --- */
+.Signin {
+  width: 100%;
+  max-width: 420px;
+  margin: 48px auto;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border-radius: var(--radius);
+  padding: 28px;
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(255,255,255,0.03);
+  text-align: center;
+}
+
+.Signin h1 { margin-bottom: 20px; }
+
+.Signin input[type="text"] {
+  width: 100%;
+  padding: 12px 14px;
+  margin: 8px 0 12px 0;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.02);
+  color: var(--text);
+  font-size: 15px;
+  outline: none;
+  transition: box-shadow .15s, border-color .12s, transform .06s;
+}
+
+.Signin input[type="text"]::placeholder {
+  color: var(--muted);
+}
+
+.Signin input[type="text"]:focus {
+  box-shadow: 0 6px 18px rgba(34,197,94,0.06);
+  border-color: rgba(125,211,252,0.18);
+  transform: translateY(-1px);
+}
+
+/* Buttons */
+button {
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+  border: none;
+  padding: 10px 16px;
+  font-size: 15px;
+  border-radius: 10px;
+  transition: transform .08s ease, box-shadow .12s ease;
+}
+
+#SignInButton,
+#Start,
+#submitBtn,
+#ViewResults {
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  color: #042027;
+  font-weight: 600;
+  box-shadow: 0 8px 20px rgba(125,211,252,0.08);
+}
+
+#SignInButton:hover,
+#Start:hover,
+#submitBtn:hover,
+#ViewResults:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px rgba(125,211,252,0.12);
+}
+
+#SignInButton:active,
+#Start:active,
+#submitBtn:active,
+#ViewResults:active {
+  transform: translateY(0);
+}
+
+/* Disabled state */
+button[disabled],
+button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* --- Students page --- */
+body.students {
+  padding-top: 36px;
+}
+
+/* top heading container for students */
+.students .page-wrap {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--gap);
+}
+
+/* Timer */
+#timerDisplay {
+  font-size: 1.25rem;
+  color: var(--danger);
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+/* Questions area */
+#questionsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 6px;
+}
+
+/* Single question card */
+.question {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid rgba(255,255,255,0.03);
+  box-shadow: 0 8px 22px rgba(2,6,23,0.5);
+}
+
+.question p {
+  margin: 0 0 10px 0;
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--text);
+}
+
+/* Answer row */
+.question label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 14px;
+  color: var(--muted);
+  margin-right: 12px;
+}
+
+/* Radio inputs styling */
+.question input[type="radio"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #60a5fa;
+  margin-right: 6px;
+  transform: translateY(1px);
+}
+
+/* Submit button */
+#submitBtn {
+  display: inline-block;
+  margin-top: 18px;
+  padding: 10px 18px;
+  border-radius: 12px;
+}
+
+/* Responsive layout for question cards on wide screens */
+@media (min-width: 900px) {
+  #questionsContainer {
+    gap: 18px;
+  }
+  .question {
+    padding: 18px;
+  }
+}
+
+/* --- Teacher page --- */
+.TeachersDiv {
+  max-width: 720px;
+  margin: 32px auto;
+  padding: 20px;
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border: 1px solid rgba(255,255,255,0.03);
+  box-shadow: var(--shadow);
+}
+
+.TeachersDiv label {
+  display: block;
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+#TimeDeadline {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.04);
+  background: rgba(255,255,255,0.02);
+  color: var(--text);
+  font-size: 15px;
+}
+
+/* ViewResults hidden by default but positioned nicely when shown */
+#ViewResults {
+  display: none;
+  margin-left: 12px;
+}
+
+/* arrange teacher buttons */
+.TeachersDiv button {
+  margin-top: 8px;
+  margin-right: 8px;
+}
+
+/* timer area style for teacher */
+.TeachersDiv #timerDisplay {
+  margin-top: 18px;
+  font-size: 1.2rem;
+  color: var(--danger);
+  font-weight: 700;
+}
+
+/* Small-screen improvements */
+@media (max-width: 600px) {
+  .Signin { padding: 20px; margin: 28px 12px; }
+  .TeachersDiv { padding: 16px; margin: 16px 8px; }
+  #SignInButton, #Start, #submitBtn { width: 100%; }
+  label { width: 100%; }
+}
+
+/* Utility helpers (optional) */
+.center {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.kv {
+  display:flex;
+  gap:8px;
+  align-items:center;
+  color:var(--muted);
+  font-size:14px;
+}

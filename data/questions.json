@@ -1,0 +1,136 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "text": "Which language is used to describe the structure of a web page?",
+      "choices": {
+        "a": "HTML",
+        "b": "CSS",
+        "c": "JavaScript",
+        "d": "Python"
+      },
+      "correctAnswer": "a",
+      "type": "multiple-choice"
+    },
+    {
+      "id": "q2",
+      "text": "What is the main purpose of CSS?",
+      "choices": {
+        "a": "To control the style and layout of web pages",
+        "b": "To store data on the server",
+        "c": "To execute backend logic",
+        "d": "To query databases"
+      },
+      "correctAnswer": "a",
+      "type": "multiple-choice"
+    },
+    {
+      "id": "q3",
+      "text": "What is JavaScript mainly used for in web development?",
+      "choices": {
+        "a": "Creating static web pages",
+        "b": "Adding interactivity to web pages",
+        "c": "Designing databases",
+        "d": "Configuring servers"
+      },
+      "correctAnswer": "b",
+      "type": "multiple-choice"
+    },
+    {
+      "id": "q4",
+      "text": "Which HTTP method is typically used to retrieve data from a server?",
+      "choices": {
+        "a": "POST",
+        "b": "GET",
+        "c": "PUT",
+        "d": "DELETE"
+      },
+      "correctAnswer": "b",
+      "type": "multiple-choice"
+    },
+    {
+      "id": "q5",
+      "text": "Which tag is used to create a hyperlink in HTML?",
+      "choices": {
+        "a": "link",
+        "b": "a",
+        "c": "href",
+        "d": "hyperlink"
+      },
+      "correctAnswer": "b",
+      "type": "multiple-choice"
+    },
+    {
+      "id": "q6",
+      "text": "What does the acronym API stand for?",
+      "choices": {
+        "a": "Application Programming Interface",
+        "b": "Advanced Program Instruction",
+        "c": "Application Process Integration",
+        "d": "Automated Programming Interaction"
+      },
+      "correctAnswer": "a",
+      "type": "multiple-choice"
+    },
+    {
+      "id": "q7",
+      "text": "Which CSS property changes the text color?",
+      "choices": {
+        "a": "font-color",
+        "b": "color",
+        "c": "text-color",
+        "d": "font-style"
+      },
+      "correctAnswer": "b",
+      "type": "multiple-choice"
+    },
+    {
+      "id": "q8",
+      "text": "Which HTML element is used to insert an image?",
+      "choices": {
+        "a": "picture",
+        "b": "src",
+        "c": "image",
+        "d": "img"
+      },
+      "correctAnswer": "d",
+      "type": "multiple-choice"
+    },
+    {
+      "id": "q9",
+      "text": "Which HTTP status code means 'Not Found'?",
+      "choices": {
+        "a": "200",
+        "b": "301",
+        "c": "404",
+        "d": "500"
+      },
+      "correctAnswer": "c",
+      "type": "multiple-choice"
+    },
+    {
+      "id": "q10",
+      "text": "In JavaScript, which keyword is used to declare a variable?",
+      "choices": {
+        "a": "var",
+        "b": "const",
+        "c": "let",
+        "d": "All of the above"
+      },
+      "correctAnswer": "d",
+      "type": "multiple-choice"
+    },
+    {
+      "id": "q11",
+      "text": "Explain what a REST API is in your own words.",
+      "choices": {},
+      "type": "open-ended"
+    },
+    {
+      "id": "q12",
+      "text": "What are the key differences between CSS and JavaScript?",
+      "choices": {},
+      "type": "open-ended"
+    }
+  ]
+}

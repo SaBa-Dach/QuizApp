@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz App - Student</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .question {
+      margin-bottom: 20px;
+    }
+
+    #submitBtn {
+      margin-top: 20px;
+    }
+
+    #timerDisplay {
+      font-size: 1.5em;
+      color: red;
+    }
+
+    #questionsContainer {
+      margin-top: 20px;
+    }
+
+    #OpenQuestionsContainer {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Student Dashboard</h1>
+
+  <div id="timerDisplay">Checking test status...</div>
+  <div id="questionsContainer"></div>
+  <div id="OpenQuestionsContainer"></div>
+
+  <button id="submitBtn">Submit Answers</button>
+  <button id="viewResultsBtn" style="display: none; margin-left: 10px;">View Results</button>
+  <div id="resultsContainer" style="margin-top: 30px;"></div>
+
+  <script>
+    const timerDisplay = document.getElementById("timerDisplay");
+    const questionsContainer = document.getElementById("questionsContainer");
+    const openQuestionsContainer = document.getElementById("OpenQuestionsContainer");
+    const submitBtn = document.getElementById("submitBtn");
+    const viewResultsBtn = document.getElementById("viewResultsBtn");
+    const resultsContainer = document.getElementById("resultsContainer");
+
+    let timerInterval;
+    let questions = [];
+    let answers = {};
+    let openAnswers = {};
+    let remainingTime = 0;
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("No valid token found. Please log in as a student.");
+      submitBtn.disabled = true;
+      viewResultsBtn.disabled = true;
+    }
+
+    //Check if student already submitted
+    async function checkSubmissionStatus() {
+      if (!token) return;
+
+      try {
+        const response = await fetch(`http://localhost:3000/submission/check?token=${token}`);
+        const data = await response.json();
+
+        if (data.submitted) {
+          submitBtn.disabled = true;
+          viewResultsBtn.style.display = "inline-block";
+          timerDisplay.textContent = "You have already submitted your answers.";
+          questionsContainer.innerHTML = "";
+          openQuestionsContainer.innerHTML = "";
+        } else {
+          checkTestStatus();
+        }
+      } catch (err) {
+        console.error("Error checking submission status:", err);
+        timerDisplay.textContent = "Failed to contact server.";
+        submitBtn.disabled = true;
+      }
+    }
+
+    async function checkTestStatus() {
+      try {
+        const response = await fetch("http://localhost:3000/session/status");
+        const data = await response.json();
+
+        if (!data.testStarted) {
+          timerDisplay.textContent = "Test has not started yet.";
+          submitBtn.disabled = true;
+          return;
+        }
+
+        // Use deadline time stored in localStorage (set by teacher.html)
+        const testDeadline = localStorage.getItem("testDeadline");
+        if (testDeadline) {
+          const deadline = new Date(testDeadline);
+          const now = new Date();
+          remainingTime = deadline - now;
+
+          if (remainingTime <= 0) {
+            timerDisplay.textContent = "Time's up!";
+            submitBtn.disabled = true;
+            return;
+          }
+
+          startCountdown();
+          getQuestions(); // Load questions only after test is confirmed started
+        } else {
+          timerDisplay.textContent = "No test deadline found.";
+          submitBtn.disabled = true;
+        }
+      } catch (err) {
+        console.error("Error checking test status:", err);
+        timerDisplay.textContent = "Failed to contact server.";
+        submitBtn.disabled = true;
+      }
+    }
+
+    // Start countdown timer
+    function startCountdown() {
+      timerInterval = setInterval(() => {
+        if (remainingTime <= 0) {
+          clearInterval(timerInterval);
+          timerDisplay.textContent = "Time's up!";
+          submitBtn.disabled = true;
+          questionsContainer.innerHTML = ""; // Hide questions after time is up
+          openQuestionsContainer.innerHTML = "";
+          submitAnswers(); // Auto-submit when time is up
+        } else {
+          const minutes = Math.floor(remainingTime / 1000 / 60);
+          const seconds = Math.floor((remainingTime / 1000) % 60);
+          timerDisplay.textContent = `Time left: ${minutes}m ${seconds}s`;
+          remainingTime -= 1000;
+        }
+      }, 1000);
+    }
+
+    async function getQuestions() {
+      try {
+        const response = await fetch("http://localhost:3000/questions");
+        if (!response.ok) {
+          const errData = await response.json();
+          alert(errData.error || "Failed to load questions.");
+          submitBtn.disabled = true;
+          return;
+        }
+        const data = await response.json();
+        
+        questions = data.questions;
+        displayQuestions();
+      } catch (err) {
+        console.error("Error fetching questions:", err);
+        alert("Failed to load questions.");
+        submitBtn.disabled = true;
+      }
+    }
+
+    function displayQuestions() {
+      questionsContainer.innerHTML = "";
+      openQuestionsContainer.innerHTML = "";
+
+      questions.forEach((question) => {
+        if (question.choices && Object.keys(question.choices).length > 0) {
+          const div = document.createElement("div");
+          div.classList.add("question");
+
+          const questionText = document.createElement("p");
+          questionText.textContent = question.text;
+          div.appendChild(questionText);
+
+          const options = Object.keys(question.choices);
+
+          options.forEach((optionKey) => {
+            const input = document.createElement("input");
+            input.type = "radio";
+            input.name = `question-${question.id}`;
+            input.value = optionKey;
+
+            input.addEventListener("change", () => {
+              answers[question.id] = optionKey;
+            });
+
+            const label = document.createElement("label");
+            label.textContent = question.choices[optionKey];
+            label.style.marginLeft = "5px";
+
+            const br = document.createElement("br");
+
+            div.appendChild(input);
+            div.appendChild(label);
+            div.appendChild(br);
+          });
+
+          questionsContainer.appendChild(div);
+        } else {
+          const openDiv = document.createElement("div");
+          openDiv.classList.add("question");
+
+          const label = document.createElement("label");
+          label.textContent = question.text;
+          label.htmlFor = `open-question-${question.id}`;
+
+          const textarea = document.createElement("textarea");
+          textarea.id = `open-question-${question.id}`;
+          textarea.placeholder = "Type your answer here...";
+          textarea.style.width = "100%";
+          textarea.style.height = "80px";
+          textarea.addEventListener("input", () => {
+            openAnswers[question.id] = textarea.value;
+          });
+
+          openDiv.appendChild(label);
+          openDiv.appendChild(textarea);
+
+          openQuestionsContainer.appendChild(openDiv);
+        }
+      });
+    }
+
+    async function submitAnswers() {
+      const combinedAnswers = { ...answers, ...openAnswers };
+
+      if (Object.keys(combinedAnswers).length === 0) {
+        alert("Please select or write at least one answer before submitting.");
+        return;
+      }
+
+      submitBtn.disabled = true;
+      try {
+        const response = await fetch("http://localhost:3000/submit", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            token,
+            answers: combinedAnswers,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          alert(data.error || "Failed to submit answers.");
+          submitBtn.disabled = false; 
+        } else {
+          alert("Answers submitted successfully.");
+          submitBtn.disabled = true;
+          viewResultsBtn.style.display = "inline-block";
+          questionsContainer.innerHTML = "";
+          openQuestionsContainer.innerHTML = "";
+          timerDisplay.textContent = "You have submitted your answers.";
+        }
+      } catch (err) {
+        console.error("Submission error:", err);
+        alert("Submission failed.");
+        submitBtn.disabled = false;
+      }
+    }
+
+    async function fetchAndDisplayResults() {
+      console.log("View Results button clicked");
+      resultsContainer.innerHTML = "Loading results...";
+      try {
+        const response = await fetch(`http://localhost:3000/results?token=${token}`);
+        const data = await response.json();
+
+        if (!response.ok) {
+          resultsContainer.textContent = data.error || "Failed to load results.";
+          alert(data.error || "Failed to load results.");
+          return;
+        }
+
+        let correctCount = 0;
+        const totalQuestions = data.results.length;
+
+        data.results.forEach((q) => {
+          if (q.correctAnswer === q.studentAnswer) correctCount++;
+        });
+
+        let html = `<h2>Results for ${data.studentName}</h2>`;
+        html += `<p>Submitted at: ${new Date(data.submittedAt).toLocaleString()}</p>`;
+        html += `<p><strong>You got ${correctCount} question${correctCount !== 1 ? 's' : ''} right out of ${totalQuestions} question${totalQuestions !== 1 ? 's' : ''}.</strong></p>`;
+
+        data.results.forEach((q) => {
+          const correct = q.correctAnswer === q.studentAnswer;
+          html += `
+            <div style="margin-bottom: 15px;">
+              <strong>Q: ${q.text}</strong><br>
+              <ul>
+                ${Object.entries(q.choices || {})
+                  .map(([key, val]) => {
+                    let style = "";
+                    if (key === q.correctAnswer) style = "color: green; font-weight: bold;";
+                    if (key === q.studentAnswer && key !== q.correctAnswer) style = "color: red; font-weight: bold;";
+                    return `<li style="${style}">${key}: ${val}</li>`;
+                  })
+                  .join("")}
+              </ul>
+              <p>Your answer: <strong>${q.studentAnswer || "No answer"}</strong> — ${
+            correct ? " Correct" : " Incorrect"
+          }</p>
+            </div>
+          `;
+        });
+
+        resultsContainer.innerHTML = html;
+      } catch (err) {
+        console.error("Error fetching results:", err);
+        resultsContainer.textContent = "Error loading results.";
+        alert("Error loading results. Please try again.");
+      }
+    }
+
+    submitBtn.addEventListener("click", () => {
+      submitAnswers();
+    });
+
+    viewResultsBtn.addEventListener("click", fetchAndDisplayResults);
+
+    checkSubmissionStatus();
+
+  </script>
+</body>
+</html>

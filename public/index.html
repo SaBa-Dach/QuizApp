@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign in</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="Signin">
+    <h1>Sign in</h1>
+
+    <input type="text" placeholder="First Name" id="FirstName"><br>
+    <input type="text" placeholder="Last Name" id="LastName"><br>
+
+    <button id="SignInButton">Sign in</button>
+  </div>
+
+  <script>
+    const signInBtn = document.getElementById("SignInButton");
+
+    signInBtn.addEventListener("click", async () => {
+      const firstName = document.getElementById("FirstName").value.trim();
+      const lastName = document.getElementById("LastName").value.trim();
+
+      if (!firstName || !lastName) {
+        alert("Please enter both first name and last name.");
+        return;
+      }
+
+      try {
+        const response = await fetch("/signin", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ firstName, lastName }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          alert(data.error || "Sign-in failed.");
+          return;
+        }
+
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("role", data.role);
+
+        if (data.role === "student") {
+          window.location.href = "students.html";
+        } else if (data.role === "teacher") {
+          window.location.href = "teacher.html";
+        } else {
+          alert("Unknown role: " + data.role);
+        }
+      } catch (err) {
+        console.error("Sign-in error:", err);
+        alert("An error occurred during sign-in.");
+      }
+    });
+  </script>
+</body>
+</html>
