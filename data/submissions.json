@@ -1,54 +1,126 @@
 {
   "submissions": [
     {
-      "token": "e1d487af-f843-4588-bc14-903fa70fc817",
-      "studentName": "saba sasaa",
-      "answers": {
-        "q9": "c"
-      },
-      "submittedAt": "2025-09-18T13:35:01.617Z"
-    },
-    {
-      "token": "9b412b34-97c0-46b7-820a-08b8f9b80931",
-      "studentName": "asdasd asdasdas",
-      "answers": {
-        "q1": "a"
-      },
-      "score": 1,
-      "totalMCQs": 10,
-      "submittedAt": "2025-09-18T13:44:02.143Z"
-    },
-    {
-      "token": "8841e471-8c5b-464a-b574-546b12f5c96f",
-      "studentName": "asdasd asdasdasff",
-      "answers": {
-        "q11": "rep",
-        "q12": "aaaaaaaaaaaaaa"
-      },
-      "score": 0,
-      "totalMCQs": 10,
-      "submittedAt": "2025-09-18T13:47:46.468Z"
-    },
-    {
-      "token": "ef18a8d1-81b5-45af-8cfe-d77ad4ecee0c",
-      "studentName": "giorgi nareshelashvili",
+      "token": "b94c14de-e466-4b14-ae2c-72d3d55595a9",
+      "studentName": "saba dachiberidza",
       "answers": {
         "q1": "a",
-        "q2": "d",
-        "q3": "c",
-        "q4": "c",
+        "q2": "a",
+        "q3": "a",
+        "q4": "a",
+        "q5": "a",
+        "q6": "a",
+        "q7": "a",
+        "q8": "a",
+        "q9": "c",
+        "q10": "c",
+        "q11": "bla bal blu",
+        "q12": "opaaa"
+      },
+      "openEndedAnswers": {
+        "q11": "bla bal blu",
+        "q12": "opaaa"
+      },
+      "score": 11,
+      "totalMCQs": 10,
+      "submittedAt": "2025-09-22T17:50:25.825Z",
+      "openAnswers": [
+        {
+          "question": "Explain what a REST API is in your own words.",
+          "answer": "",
+          "isCorrect": true
+        },
+        {
+          "question": "What are the key differences between CSS and JavaScript?",
+          "answer": "",
+          "isCorrect": true
+        }
+      ],
+      "openAnswerGrades": {
+        "Explain what a REST API is in your own words.": true,
+        "What are the key differences between CSS and JavaScript?": true
+      }
+    },
+    {
+      "token": "d95ddae4-2425-47a4-bf0f-9ed9024746c5",
+      "studentName": "SABA asdasdasd",
+      "answers": {
+        "q1": "c",
+        "q2": "b",
+        "q3": "a",
+        "q4": "a",
         "q5": "a",
         "q6": "d",
         "q7": "b",
-        "q8": "a",
-        "q9": "c",
-        "q10": "a",
-        "q11": "wdd",
-        "q12": "dasdasd"
+        "q8": "c",
+        "q9": "b"
+      },
+      "openEndedAnswers": {
+        "q11": "No answer",
+        "q12": "No answer"
+      },
+      "openAnswerGrades": {
+        "Explain what a REST API is in your own words.": true,
+        "What are the key differences between CSS and JavaScript?": true
       },
       "score": 3,
       "totalMCQs": 10,
-      "submittedAt": "2025-09-22T11:36:02.317Z"
+      "submittedAt": "2025-09-22T18:34:02.814Z"
+    },
+    {
+      "token": "59ea2fde-1521-4af5-b21b-c08cdde167d6",
+      "studentName": "a aasadasdasd",
+      "answers": {
+        "q1": "b"
+      },
+      "openEndedAnswers": {
+        "q11": "No answer",
+        "q12": "No answer"
+      },
+      "openAnswerGrades": {},
+      "score": 0,
+      "totalMCQs": 10,
+      "submittedAt": "2025-09-22T18:39:03.953Z"
+    },
+    {
+      "token": "be32be27-7f92-4ab1-a367-bf743c44d5ae",
+      "studentName": "asdsad asdsadasdsadasdasd",
+      "answers": {
+        "q10": "d",
+        "q11": "sadsa sad a",
+        "q12": "dassadasdasd"
+      },
+      "openEndedAnswers": {
+        "q11": "sadsa sad a",
+        "q12": "dassadasdasd"
+      },
+      "openAnswerGrades": {},
+      "score": 1,
+      "totalMCQs": 10,
+      "submittedAt": "2025-09-22T18:39:55.532Z"
+    },
+    {
+      "token": "b84432e4-5bbf-46cb-b945-7afd84fc3157",
+      "studentName": "gea a",
+      "answers": {
+        "q1": "b",
+        "q2": "a",
+        "q3": "d",
+        "q5": "b",
+        "q8": "a",
+        "q10": "a",
+        "q9": "d",
+        "q7": "a",
+        "q12": "prow"
+      },
+      "openEndedAnswers": {
+        "q11": "No answer",
+        "q12": "prow"
+      },
+      "openAnswerGrades": {},
+      "score": 2,
+      "totalMCQs": 10,
+      "submittedAt": "2025-09-22T18:43:02.974Z"
     }
   ]
 }
