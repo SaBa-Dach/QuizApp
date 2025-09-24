@@ -482,7 +482,7 @@ body.students {
   border-radius: 8px;
 }
 
-/* --- Mark Answer Buttons --- */
+
 .mark-answer-btn {
   margin: 6px 8px 6px 0;
   padding: 8px 16px;
@@ -532,7 +532,7 @@ body.students {
   box-shadow: none !important;
 }
 
-/* Button icons */
+
 .mark-answer-btn::before {
   margin-right: 6px;
   font-weight: bold;
@@ -546,7 +546,7 @@ body.students {
   content: "✗";
 }
 
-/* Loading state */
+
 .mark-answer-btn:disabled::before {
   content: "";
   display: inline-block;
